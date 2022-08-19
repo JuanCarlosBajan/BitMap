@@ -54,55 +54,55 @@ rend.glLoadModel("model.obj",
 #rend.active_texture2 = Texture("earthNight.bmp")
 #rend.active_shader = textureBlend
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(2.5, 2.2, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(-2.5, 2.2, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(0, 2.2, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.active_texture = Texture("bn.bmp")
+rend.active_texture = Texture("BitMap/Models&Outputs/bn.bmp")
 rend.active_shader = jccc2
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(2.5, -1, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(-2.5, -1, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(0, -1, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.active_texture = Texture("bn.bmp")
+rend.active_texture = Texture("BitMap/Models&Outputs/bn.bmp")
 rend.active_shader = jccc3
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(2.5, -4.5, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(-2.5, -4.5, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.glLoadModel("skull.obj",
+rend.glLoadModel("BitMap/Models&Outputs/skull.obj",
                  translate = V3(0, -4.5, -10),
                  scale = V3(0.1,0.1,0.1),
                  rotate = V3(-90,0,0))
 
-rend.glFinish("output.bmp")
+rend.glFinish("BitMap/Models&Outputs/output.bmp")
