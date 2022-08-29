@@ -25,7 +25,7 @@ class Obj(object):
             elif prefix == 'f':
                 if(value[-1] == ' '):
                     value = value[0:-1]
-                self.faces.append([  list(map(int, vert.split('/'))) for vert in value.split(' ')] )
+                self.faces.append([  list(map(int , list(filter(lambda x: x is not '', vert.split('/'))))) for vert in value.split(' ')] )
 
                 #vertList = []
                 #for vert in value.split(' '):

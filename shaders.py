@@ -1,5 +1,9 @@
 from random import random
+from mathJCB import vector_matrix_multiplication, normalized
 from mathJCB import dot, toggleSign
+from collections import namedtuple
+
+V3 = namedtuple('Point3', ['x', 'y', 'z'])
 
 def flat(render, **kwargs):
     # Normal calculada por poligono
@@ -74,6 +78,47 @@ def gourad(render, **kwargs):
     else:
         return 0,0,0
 
+
+def gouradIntense(render, **kwargs):
+    # Normal calculada por vertice
+    u, v, w = kwargs["baryCoords"]
+    b, g, r = kwargs["vColor"]
+    tA, tB, tC = kwargs["texCoords"]
+    nA, nB, nC = kwargs["normals"]
+
+    b /= 255
+    g /= 255
+    r /= 255
+
+    if render.active_texture:
+        # P = Au + Bv + Cw
+        tU = tA[0] * u + tB[0] * v + tC[0] * w
+        tV = tA[1] * u + tB[1] * v + tC[1] * w
+
+        texColor = render.active_texture.getColor(tU, tV)
+
+        b *= texColor[2]
+        g *= texColor[1]
+        r *= texColor[0]
+
+    triangleNormal = [nA[0] * u + nB[0] * v + nC[0] * w,
+                        nA[1] * u + nB[1] * v + nC[1] * w,
+                        nA[2] * u + nB[2] * v + nC[2] * w]
+
+    dirLight = render.dirLight
+    intensity = dot(triangleNormal, toggleSign(dirLight))
+
+    dirLight2 = render.dirLight2
+    if dirLight2:
+        intensity2 = dot(triangleNormal, toggleSign(dirLight2))
+
+
+    if intensity > intensity2 and intensity > 0:
+        return r*intensity*1, g*intensity*0.5, 0
+    elif dirLight2 and intensity2 > intensity and intensity2 > 0:
+        return r*intensity2*1, g*intensity2*0.5, 0
+    else:
+        return 0,0,0
 
 def unlit(render, **kwargs):
     u, v, w = kwargs["baryCoords"]
@@ -479,3 +524,64 @@ def jccc3(render, **kwargs):
         r = 1*((1/intensity))%1
 
     return r, g, b
+
+
+def normalMap(render, **kwargs):
+    # Normal calculada por vertice
+    u, v, w = kwargs["baryCoords"]
+    b, g, r = kwargs["vColor"]
+    tA, tB, tC = kwargs["texCoords"]
+    nA, nB, nC = kwargs["normals"]
+    tangent = kwargs["tangent"]
+    bitangent = kwargs["bitangent"]
+
+    
+
+    b /= 255
+    g /= 255
+    r /= 255
+
+    # P = Au + Bv + Cw
+    tU = tA[0] * u + tB[0] * v + tC[0] * w
+    tV = tA[1] * u + tB[1] * v + tC[1] * w
+
+    if render.active_texture:
+        texColor = render.active_texture.getColor(tU, tV)
+
+        b *= texColor[2]
+        g *= texColor[1]
+        r *= texColor[0]
+
+    triangleNormal = [nA[0] * u + nB[0] * v + nC[0] * w,
+                               nA[1] * u + nB[1] * v + nC[1] * w,
+                               nA[2] * u + nB[2] * v + nC[2] * w]
+
+    dirLight = render.dirLight
+
+    if render.normal_map:
+        texNormal = render.normal_map.getColor(tU, tV)
+        texNormal = [texNormal[0] * 2 - 1,
+                     texNormal[1] * 2 - 1,
+                     texNormal[2] * 2 - 1]
+        texNormal = V3(texNormal[0],texNormal[1], texNormal[2])
+        texNormal = normalized(texNormal)
+
+        tangentMatrix = [[tangent[0],bitangent[0],triangleNormal[0]],
+                                   [tangent[1],bitangent[1],triangleNormal[1]],
+                                   [tangent[2],bitangent[2],triangleNormal[2]]]
+        texNormal = vector_matrix_multiplication(tangentMatrix, texNormal)
+        texNormal = V3(texNormal[0],texNormal[1], texNormal[2])
+        texNormal = normalized(texNormal)
+
+        intensity = dot(texNormal, toggleSign(dirLight))
+    else:
+        intensity = dot(triangleNormal, -dirLight)
+
+    b *= intensity
+    g *= intensity
+    r *= intensity
+
+    if intensity > 0:
+        return r, g, b
+    else:
+        return 0,0,0

@@ -57,7 +57,11 @@ class Renderer(object):
         self.active_texture = None
         self.active_texture2 = None
 
+        self.normal_map = None
+        self.background = None
+
         self.dirLight = V3(0,0,-1)
+        self.dirLight2 = V3(0,0,-1)
 
         self.glViewMatrix()
         self.glViewport(0,0,self.width, self.height)
@@ -122,6 +126,19 @@ class Renderer(object):
 
         self.zbuffer = [[ float('inf') for y in range(self.height)]
                           for x in range(self.width)]
+
+    def glClearBackground(self):
+        if self.background:
+            for x in range(self.vpX, self.vpX + self.vpWidth + 1):
+                for y in range(self.vpY, self.vpY + self.vpHeight + 1):
+
+                    tU = (x - self.vpX) / self.vpWidth
+                    tV = (y - self.vpY) / self.vpHeight
+
+                    texColor = self.background.getColor(tU, tV)
+
+                    if texColor:
+                        self.glPoint(x,y, color(texColor[0], texColor[1], texColor[2]))
 
     def glClearViewport(self, clr = None):
         for x in range(self.vpX, self.vpX + self.vpWidth):
@@ -389,11 +406,41 @@ class Renderer(object):
         maxX = round(max(A.x, B.x, C.x))
         maxY = round(max(A.y, B.y, C.y))
 
-        triangleNormal = cross( subtract(verts[1], verts[0]), subtract(verts[2],verts[0]))
-        # normalizar
+        edge1 = subtract(verts[1], verts[0])
+        edge2 = subtract(verts[2], verts[0])
+
+        triangleNormal = cross( edge1, edge2)
         triangleNormal = normalized(triangleNormal)
 
+        if len(texCoords[0]) <3: texCoords[0].append(1.0)
+        if len(texCoords[1]) <3: texCoords[1].append(1.0)
+        if len(texCoords[2]) <3: texCoords[2].append(1.0)
+
+        deltaUV1 = subtract(V3(texCoords[1][0],texCoords[1][1],texCoords[1][2]), V3(texCoords[0][0],texCoords[0][1],texCoords[0][2]))
+        deltaUV2 = subtract(V3(texCoords[2][0],texCoords[2][1],texCoords[2][2]), V3(texCoords[0][0],texCoords[0][1],texCoords[0][2]))
+
+        try:
+            f = 1 / (deltaUV1[0]* deltaUV2[1] - deltaUV2[0] * deltaUV1[1])
+        except:
+            return
+
+        tangent = [f * (deltaUV2[1] * edge1[0] - deltaUV1[1] * edge2[0]),
+                   f * (deltaUV2[1] * edge1[1] - deltaUV1[1] * edge2[1]),
+                   f * (deltaUV2[1] * edge1[2] - deltaUV1[1] * edge2[2])]
+        tangent = normalized(V3(tangent[0],tangent[1],tangent[2]))
+
+        bitangent = cross(triangleNormal, tangent)
+        bitangent = normalized(bitangent)
+
         #print(A,B,C)
+        if maxX > self.width:
+            maxX = self.width
+        if minX <0:
+            minX =0
+        if maxY > self.height:
+            maxY = self.height
+        if minY < 0:
+            minY = 0
         for x in range(minX, maxX + 1):
             for y in range(minY, maxY + 1):
                 u, v, w = baryCoords(A, B, C, V2(x, y))
@@ -412,7 +459,9 @@ class Renderer(object):
                                                              vColor = clr or self.currColor,
                                                              texCoords = texCoords,
                                                              normals = normals,
-                                                             triangleNormal = triangleNormal)
+                                                             triangleNormal = triangleNormal,
+                                                             tangent = tangent,
+                                                             bitangent = bitangent)
 
 
 
